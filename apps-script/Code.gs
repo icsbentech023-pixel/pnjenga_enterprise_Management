@@ -39,7 +39,8 @@ function setup(){
   if(sh.getMaxColumns()<HEAD[n].length)sh.insertColumnsAfter(sh.getMaxColumns(),HEAD[n].length-sh.getMaxColumns());
   const hdr=sh.getRange(1,1,1,HEAD[n].length).getValues()[0];
   HEAD[n].forEach((h,i)=>{if(!hdr[i])sh.getRange(1,i+1).setValue(h).setFontWeight('bold');});
-  sh.setFrozenRows(1);if(n!=='Items')sh.getRange('B:B').setNumberFormat('@');
+  // Keep existing typed-column formats intact; some Sheets columns reject setNumberFormat().
+  sh.setFrozenRows(1);
  });
  // Only seed defaults when this setup creates a brand-new Items tab.
  if(createdItems){const items=ss.getSheetByName('Items');items.getRange(2,1,6,5).setValues([
