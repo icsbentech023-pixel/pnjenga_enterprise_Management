@@ -34,7 +34,7 @@ This repository now includes a Google Apps Script + Google Sheets implementation
 
 ## Accounting and security notes
 - Gross profit uses the unit cost entered on each sale. Verify the cost basis entered by staff.
-- M-Pesa variance is calculated as: closing float + closing cash − opening float − opening cash − deposits + withdrawals − commission − capital added. Confirm this convention matches your agent's cash/float movement before operational use.
+- M-Pesa variance is calculated as: closing float + closing cash − opening float − opening cash − commission − capital added. Customer deposits and withdrawals are transfers between float and cash, so they are tracked for activity reporting but excluded from the combined cash-plus-float reconciliation. This assumes commission and capital added are included in the closing float/cash totals.
 - “Net before other costs” is a management estimate: gross trading profit + M-Pesa commission − recorded expenses. It is not a formal financial statement.
 - PINs are lightweight shared-device controls, not individual staff identity or high-assurance authentication. Restrict web-app access and spreadsheet sharing permissions.
 - Back up the spreadsheet regularly. There is currently no automated backup, per-user audit trail, or edit workflow. Protect deletion operations operationally.
