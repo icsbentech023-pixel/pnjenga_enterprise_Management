@@ -26,7 +26,8 @@ function doGet(e){
  const dash=e&&e.parameter&&e.parameter.page==='dashboard';
  return HtmlService.createHtmlOutputFromFile(dash?'Index':'DataEntry')
   .setTitle(dash?'PNJENGA ENTERPRISE — Dashboard':'PNJENGA ENTERPRISE — Data Entry')
-  .addMetaTag('viewport','width=device-width, initial-scale=1');
+  .addMetaTag('viewport','width=device-width, initial-scale=1')
+  .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function setup(){
  const P=PropertiesService.getScriptProperties();
