@@ -1,93 +1,30 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#173f35">
-  <title>PNJENGA ENTERPRISE | Gathaiti & Kanjuku</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173f35">
+<meta name="description" content="PNJENGA ENTERPRISE business management for Gathaiti and Kanjuku.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>PNJENGA ENTERPRISE</title>
+<style>
+:root{color-scheme:light;--green:#173f35;--gold:#d9b45e}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#f3f6f3;color:#172b24}.shell{height:100dvh;display:flex;flex-direction:column}.bar{min-height:58px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px}.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}.mark{height:36px;width:36px;border-radius:10px;background:var(--gold);color:var(--green);display:grid;place-items:center;font-size:20px}.actions{display:flex;align-items:center;gap:8px}.actions button,.actions a{border:1px solid #ffffff55;border-radius:8px;background:#ffffff12;color:#fff;padding:8px 11px;text-decoration:none;font-size:13px;font-weight:700;cursor:pointer}.frame-wrap{position:relative;flex:1;min-height:0;background:#fff}.app-frame{border:0;width:100%;height:100%;display:block;background:#fff}.fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;background:#f3f6f3}.fallback div{max-width:420px}.fallback a{display:inline-block;margin-top:12px;background:var(--green);color:white;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:700}.foot{font-size:11px;text-align:center;color:#66766e;padding:5px;background:#edf2ee}@media(max-width:480px){.bar{min-height:52px;padding:7px 9px}.brand{font-size:12px}.mark{width:32px;height:32px}.actions button,.actions a{font-size:11px;padding:7px}}
+</style>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand"><div class="brand-mark">P</div><div><h1>PNJENGA ENTERPRISE</h1><p>Gathaiti &amp; Kanjuku · Business Management</p></div></div>
-  <div class="top-controls">
-    <label class="sr-only" for="branchFilter">Branch</label>
-    <select id="branchFilter"><option>All Branches</option><option>Gathaiti</option><option>Kanjuku</option></select>
-    <span class="role-label">Prototype · Admin view</span>
-  </div>
-</header>
-
-<main class="container">
-  <section class="welcome">
-    <div><p class="eyebrow">BUSINESS OVERVIEW</p><h2>Good business starts with clear records.</h2><p class="muted">Monitor sales and transactions across both branches.</p></div>
-    <div id="today" class="today"></div>
-  </section>
-
-  <section class="metrics">
-    <article class="metric"><span>Total Sales</span><strong id="totalSales">KES 0</strong><small>Gas + Agrovet</small></article>
-    <article class="metric"><span>M-Pesa Received</span><strong id="mpesaTotal">KES 0</strong><small>Recorded M-Pesa entries</small></article>
-    <article class="metric"><span>Cash Sales</span><strong id="cashTotal">KES 0</strong><small>Gas + Agrovet entries</small></article>
-    <article class="metric"><span>Entries Recorded</span><strong id="entryCount">0</strong><small>Saved on this device</small></article>
-  </section>
-
-  <nav class="tabs" aria-label="Dashboard sections">
-    <button class="tab active" data-tab="overview">Overview</button>
-    <button class="tab" data-tab="gas">Gas</button>
-    <button class="tab" data-tab="mpesa">M-Pesa</button>
-    <button class="tab" data-tab="agrovet">Agrovet</button>
-    <button class="tab" data-tab="reconciliation">Reconciliation</button>
-  </nav>
-
-  <section id="overview" class="page">
-    <div class="columns">
-      <article class="panel">
-        <div class="panel-heading"><div><p class="eyebrow">ACTIVITY</p><h3>Recent Entries</h3></div><button class="primary" id="addEntry">＋ Add Entry</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Branch</th><th>Module</th><th>Description</th><th class="number">Amount</th></tr></thead><tbody id="recentRows"></tbody></table></div>
-      </article>
-      <article class="panel">
-        <p class="eyebrow">SHORTCUTS</p><h3>Quick Entry</h3>
-        <div class="shortcuts">
-          <button data-new="Gas"><span>🔥</span>Gas Sale</button>
-          <button data-new="M-Pesa"><span>▣</span>M-Pesa</button>
-          <button data-new="Agrovet"><span>🌱</span>Agrovet Sale</button>
-        </div>
-        <div class="notice"><strong>Prototype notice</strong><br>Records are currently stored only in this browser. Staff logins, shared cloud storage, permissions and live synchronization are not connected yet. Do not use this prototype as the official business ledger.</div>
-      </article>
-    </div>
-  </section>
-
-  <section id="gas" class="page hidden"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">GAS BUSINESS</p><h3>Gas Sales</h3></div><button class="primary" data-new="Gas">＋ Record Sale</button></div><div id="gasRows"></div></article></section>
-  <section id="mpesa" class="page hidden"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">PAYMENTS</p><h3>M-Pesa Transactions</h3></div><button class="primary" data-new="M-Pesa">＋ Record Transaction</button></div><div id="mpesaRows"></div></article></section>
-  <section id="agrovet" class="page hidden"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">AGROVET BUSINESS</p><h3>Agrovet Sales</h3></div><button class="primary" data-new="Agrovet">＋ Record Sale</button></div><div id="agrovetRows"></div></article></section>
-  <section id="reconciliation" class="page hidden">
-    <article class="panel narrow"><p class="eyebrow">END-OF-DAY CONTROL</p><h3>M-Pesa Reconciliation</h3>
-      <div class="form-grid">
-        <label>Branch<select id="recBranch"><option>Gathaiti</option><option>Kanjuku</option></select></label>
-        <label>Date<input type="date" id="recDate"></label>
-        <label>Expected M-Pesa (KES)<input type="number" min="0" id="expected"></label>
-        <label>Actual M-Pesa (KES)<input type="number" min="0" id="actual"></label>
-      </div>
-      <button class="primary" id="calculate">Calculate Variance</button><div id="variance" class="variance hidden"></div>
-    </article>
-  </section>
-</main>
-
-<div class="modal hidden" id="entryModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <form class="dialog" id="entryForm">
-    <div class="panel-heading"><h3 id="modalTitle">Add Entry</h3><button type="button" class="icon-button" id="closeModal" aria-label="Close">✕</button></div>
-    <div class="form-grid">
-      <label>Module<select id="entryModule"><option>Gas</option><option>M-Pesa</option><option>Agrovet</option></select></label>
-      <label>Branch<select id="entryBranch"><option>Gathaiti</option><option>Kanjuku</option></select></label>
-      <label>Date<input id="entryDate" type="date" required></label>
-      <label>Amount (KES)<input id="entryAmount" type="number" min="0.01" step="0.01" required></label>
-      <label class="full">Description / Item<input id="entryDescription" placeholder="e.g. 13kg gas refill, deposit, fertilizer" required></label>
-      <label class="full hidden" id="codeField">M-Pesa Transaction Code<input id="entryCode" placeholder="Enter transaction code"></label>
-    </div>
-    <div class="dialog-actions"><button type="button" class="secondary" id="cancelEntry">Cancel</button><button class="primary" type="submit">Save Entry</button></div>
-  </form>
+<div class="shell">
+<header class="bar"><div class="brand"><span class="mark">P</span><span>PNJENGA ENTERPRISE</span></div><div class="actions"><button id="installBtn" hidden>Install app</button><a href="https://script.google.com/macros/s/AKfycbzoB2ejSGFQN_QCp2JpwyYatghyIy0j5loXEkfDbHhCo0DE-eU8yXOCHT0ed1OjD-Bc/exec" target="_blank" rel="noopener">Open separately ↗</a></div></header>
+<main class="frame-wrap">
+<iframe class="app-frame" id="businessApp" title="PNJENGA ENTERPRISE business application" src="https://script.google.com/macros/s/AKfycbzoB2ejSGFQN_QCp2JpwyYatghyIy0j5loXEkfDbHhCo0DE-eU8yXOCHT0ed1OjD-Bc/exec" allow="clipboard-read; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div class="fallback" id="fallback"><div><h2>Open PNJENGA ENTERPRISE</h2><p>If the embedded app does not load in this browser, open the secure Google Apps Script app directly.</p><a href="https://script.google.com/macros/s/AKfycbzoB2ejSGFQN_QCp2JpwyYatghyIy0j5loXEkfDbHhCo0DE-eU8yXOCHT0ed1OjD-Bc/exec" target="_blank" rel="noopener">Open business app</a></div></div>
+</main><footer class="foot">Gathaiti &amp; Kanjuku · Live records are stored in the connected Google Sheet</footer>
 </div>
-<footer>PNJENGA ENTERPRISE · Gathaiti &amp; Kanjuku</footer>
-<script src="app.js"></script>
-</body>
-</html>
+<script>
+let installPrompt=null;const installBtn=document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;installBtn.hidden=false});
+installBtn.addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.hidden=true});
+window.addEventListener('appinstalled',()=>{installBtn.hidden=true});
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
