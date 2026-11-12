@@ -40,11 +40,6 @@ function setup(){
  const extra=ss.getSheetByName('Sheet1');if(extra&&ss.getSheets().length>1)ss.deleteSheet(extra);
  Logger.log('Spreadsheet: '+ss.getUrl());return ss.getUrl();
 }
-// Run once after replacing placeholders. Never commit real PINs to source control.
-function setPins(){
- const P=PropertiesService.getScriptProperties();
- P.setProperty('ENTRY_PIN','CHANGE_ENTRY_PIN');P.setProperty('OWNER_PIN','CHANGE_OWNER_PIN');
-}
 const num_=x=>parseFloat(x)||0;
 const day_=v=>v instanceof Date?Utilities.formatDate(v,Session.getScriptTimeZone(),'yyyy-MM-dd'):String(v).slice(0,10);
 const txt_=(s,n)=>{s=String(s||'').slice(0,n);return /^[=+\-@]/.test(s)?"'"+s:s;};
