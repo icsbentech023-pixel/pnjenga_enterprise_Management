@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gathaiti & Kanjuku – Data Entry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1426;--card:#121e36;--line:#233352;--text:#e6ecf7;--mute:#8d9bb8;--mint:#4de3b0;--amber:#ffb84d;--red:#ff6b6b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#0b1426;--card:#121e36}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.45 Barlow,system-ui,Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1,h2{font-family:"Barlow Condensed",Arial Narrow,sans-serif;font-weight:700;margin:0;letter-spacing:.02em}
+h1{font-size:30px}h2{font-size:20px;margin-bottom:12px}
+.sub{color:var(--mute);margin:2px 0 18px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{background:transparent;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font:600 16px "Barlow Condensed",sans-serif;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--mint);color:#06281d;border-color:var(--mint)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+label{display:block;color:var(--mute);font-size:13px;margin-bottom:4px}
+input,select{width:100%;background:#0b1426;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
+input[readonly]{color:var(--mint);font-weight:600;border-style:dashed}
+.biz{display:flex;gap:10px}
+.biz label{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;margin:0;padding:10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--text);font:600 17px "Barlow Condensed",sans-serif}
+.biz input{width:auto;accent-color:var(--mint)}
+.biz label:has(input:checked){border-color:var(--mint);background:#0f2b2c}
+.actions{display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--amber);color:#2b1a00;border:0;border-radius:8px;padding:11px 24px;font:700 17px "Barlow Condensed",sans-serif;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--mute);border:1px solid var(--line)}
+#msg{font-weight:600}.ok{color:var(--mint)}.err{color:var(--red)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-weight:500}
+td.n,th.n{text-align:right}
+.del{background:none;border:0;color:var(--red);cursor:pointer;font:inherit}
+.empty{color:var(--mute);padding:10px 0}
+.hide{display:none}
+.lk{position:fixed;inset:0;background:rgba(6,11,22,.95);display:flex;align-items:center;justify-content:center;z-index:50}.lk.hide{display:none}.lk form{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;width:min(320px,90vw)}.lk h2{margin-bottom:10px}
+.note{color:var(--amber);margin-top:10px}
+.warn{color:var(--amber);font-weight:600}
+.ed{background:none;border:0;color:var(--mint);cursor:pointer;font:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Data entry</h1>
+  <p class="sub">Gathaiti & Kanjuku: record sales, stock received and expenses. <a id="dash" href="#" target="_top" style="color:var(--mint)">Open dashboard</a></p>
+
+  <div class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-t="sales" aria-selected="true">Daily sales</button>
+    <button class="tab" role="tab" data-t="stock" aria-selected="false">Stock received</button>
+    <button class="tab" role="tab" data-t="exp" aria-selected="false">Expenses</button>
+    <button class="tab" role="tab" data-t="mpesa" aria-selected="false">M-Pesa</button>
+    <button class="tab" role="tab" data-t="items" aria-selected="false">Items</button>
+  </div>
+
+  <div class="card">
+    <h2 id="ftitle">New sale</h2>
+    <div class="grid" id="topgrid">
+      <div><label>Date</label><input type="date" id="date"></div>
+      <div style="grid-column:span 2"><label>Business</label>
+        <div class="biz">
+          <label><input type="radio" name="biz" value="GATHAITI" checked>Gathaiti</label>
+          <label><input type="radio" name="biz" value="KANJUKU">Kanjuku</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:14px">
+      <div class="f-item"><label>Category</label><select id="cat"></select></div>
+      <div class="f-item"><label>Item</label><select id="item"></select></div>
+      <div class="f-item"><label>Quantity</label><input type="number" id="qty" min="1" step="1" value="1"></div>
+      <div class="f-item"><label>Unit cost (KES)</label><input type="number" id="cost" min="0" step="1"></div>
+      <div class="f-sales"><label>Unit price (KES)</label><input type="number" id="price" min="0" step="1"></div>
+      <div class="f-sales"><label>Total sales (KES)</label><input id="total" readonly></div>
+      <div class="f-sales"><label>Profit (KES)</label><input id="profit" readonly></div>
+      <div class="f-stock hide"><label>Total cost (KES)</label><input id="tcost" readonly></div>
+      <div class="f-stock hide"><label>Supplier</label><input id="supplier" placeholder="e.g. Gas distributor"></div>
+      <div class="f-exp hide"><label>Expense type</label>
+        <select id="etype"><option>Transport</option><option>Wages</option><option>Rent</option><option>Electricity</option><option>Other</option></select></div>
+      <div class="f-exp hide"><label>Amount (KES)</label><input type="number" id="amount" min="0" step="1"></div>
+      <div class="f-exp hide" style="grid-column:span 2"><label>Description</label><input id="desc" placeholder="Short note"></div>
+      <div class="f-mp hide"><label>Opening float (KES)</label><input type="number" id="mpof" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Opening cash (KES)</label><input type="number" id="mpoc" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Total deposits today (KES)</label><input type="number" id="mpdep" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Total withdrawals today (KES)</label><input type="number" id="mpwd" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Commission earned (KES)</label><input type="number" id="mpcomm" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Owner top-up (+) / withdrawal (-) (KES)</label><input type="number" id="mpcap" step="any"></div>
+      <div class="f-mp hide"><label>Closing float (KES)</label><input type="number" id="mpcf" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Closing cash (KES)</label><input type="number" id="mpcc" step="any" min="0"></div>
+      <div class="f-mp hide"><label>Variance (should be 0)</label><input id="mpvar" readonly></div>
+      <div class="f-mp hide" style="grid-column:span 2"><label>Notes</label><input id="mpnotes" placeholder="Optional"></div>
+      <div class="f-it hide"><label>Category</label><select id="itcat"><option>Gas</option><option>Agrovet</option></select></div>
+      <div class="f-it hide" style="grid-column:span 2"><label>Item name</label><input id="itname" placeholder="e.g. 6kg cylinder (full)"></div>
+      <div class="f-it hide"><label>Unit cost (KES)</label><input type="number" id="itcost" min="0" step="any"></div>
+      <div class="f-it hide"><label>Unit price (KES)</label><input type="number" id="itprice" min="0" step="any"></div>
+      <div class="f-it hide"><label>Reorder level (optional)</label><input type="number" id="itlevel" min="0" step="any" placeholder="Alert at or below"></div>
+    </div>
+
+    <div class="note hide" id="note"></div>
+    <div class="actions">
+      <button class="btn" id="save">Save entry</button>
+      <button class="btn ghost" id="clear">Clear</button>
+      <span id="msg" role="status"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Recent entries</h2>
+    <div class="tw"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+    <div class="empty hide" id="empty">No entries yet. Saved entries appear here.</div>
+  </div>
+</div>
+
+<div class="lk hide" id="lk"><form id="lkf"><h2>Enter PIN</h2><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"><div id="lkm" class="err" style="margin-top:6px"></div><button class="btn" style="margin-top:12px;width:100%">Unlock</button><button type="button" class="btn ghost hide" id="lkc" style="margin-top:8px;width:100%">Cancel</button></form></div>
+<script>
+var ITEMS={},PIN='',GOOD='',tab='sales',ROWS=[],editing=null;
+var COLS={
+  sales:[['id','ID'],['date','Date'],['biz','Business'],['cat','Category'],['item','Item'],['qty','Qty','n'],['total','Total','n'],['profit','Profit','n']],
+  stock:[['id','ID'],['date','Date'],['biz','Business'],['item','Item'],['qty','Qty','n'],['tcost','Total cost','n'],['supplier','Supplier']],
+  exp:  [['id','ID'],['date','Date'],['biz','Business'],['etype','Type'],['desc','Description'],['amount','Amount','n']],
+  mpesa:[['id','ID'],['date','Date'],['biz','Business'],['comm','Commission','n'],['cfloat','Closing float','n'],['ccash','Closing cash','n'],['variance','Variance','n']],
+  items:[['cat','Category'],['item','Item'],['cost','Unit cost','n'],['price','Unit price','n'],['level','Reorder at','n']]
+};
+var TITLES={sales:'New sale',stock:'Stock received',exp:'New expense',mpesa:'M-Pesa float and cash (daily)',items:'Price list item'};
+function $(id){return document.getElementById(id)}
+function num(id){return parseFloat($(id).value)||0}
+function fmt(v){return Number(v).toLocaleString('en-KE')}
+function biz(){return document.querySelector('input[name=biz]:checked').value}
+function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function msg(t,ok){$('msg').textContent=t;$('msg').className=ok?'ok':'err'}
+function warn(t){$('msg').textContent=t;$('msg').className='warn'}
+function saveLabel(){return tab==='items'?(editing?'Update item':'Save item'):'Save entry'}
+function busy(b){$('save').disabled=b;$('save').textContent=b?'Saving...':saveLabel()}
+function showLock(m){$('lk').classList.remove('hide');$('lkc').classList.toggle('hide',tab!=='items');$('lkm').textContent=m||'';$('pin').value='';$('pin').focus()}
+function call(fn,args,ok){
+  var r=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+    busy(false);
+    if(/PIN/.test(e.message))showLock(tab==='items'?'Owner PIN needed for Items':'Wrong PIN');else msg(String(e.message).replace(/^Error: /,''),false);
+  });
+  r[fn].apply(r,args);
+}
+function fillCats(){
+  var keys=Object.keys(ITEMS).filter(function(k){return k!=='M-Pesa'});
+  $('cat').innerHTML=keys.map(function(k){return '<option>'+k+'</option>'}).join('');
+  fillItems();
+}
+function fillItems(){
+  $('item').innerHTML=(ITEMS[$('cat').value]||[]).map(function(i){return '<option>'+i.n+'</option>'}).join('');
+  autofill();
+}
+function autofill(){
+  var it=(ITEMS[$('cat').value]||[]).filter(function(i){return i.n===$('item').value})[0];
+  if(it){$('cost').value=it.c;$('price').value=it.p}
+  if(tab!=='mpesa')$('note').classList.add('hide');
+  calc();
+}
+function calc(){
+  var q=num('qty'),c=num('cost'),p=num('price');
+  $('total').value=fmt(q*p);$('profit').value=fmt(q*(p-c));$('tcost').value=fmt(q*c);
+}
+function showTab(t){
+  tab=t;
+  document.querySelectorAll('.tab').forEach(function(b){b.setAttribute('aria-selected',b.dataset.t===t)});
+  $('ftitle').textContent=TITLES[t];
+  var hasItem=t!=='exp'&&t!=='mpesa'&&t!=='items';
+  document.querySelectorAll('.f-item').forEach(function(e){e.classList.toggle('hide',!hasItem)});
+  document.querySelectorAll('.f-sales').forEach(function(e){e.classList.toggle('hide',t!=='sales')});
+  document.querySelectorAll('.f-stock').forEach(function(e){e.classList.toggle('hide',t!=='stock')});
+  document.querySelectorAll('.f-exp').forEach(function(e){e.classList.toggle('hide',t!=='exp')});
+  document.querySelectorAll('.f-mp').forEach(function(e){e.classList.toggle('hide',t!=='mpesa')});
+  document.querySelectorAll('.f-it').forEach(function(e){e.classList.toggle('hide',t!=='items')});
+  $('topgrid').classList.toggle('hide',t==='items');
+  $('msg').textContent='';
+  editing=null;resetItem();
+  if(t==='mpesa'){mpCalc();prefillMp()}else $('note').classList.add('hide');
+  if(hasItem)fillCats();
+  ROWS=[];render();load();
+}
+function load(){call(tab==='items'?'listItems':'listEntries',tab==='items'?[PIN]:[tab,PIN],function(r){ROWS=r;render()})}
+function render(){
+  var cols=COLS[tab];
+  $('thead').innerHTML='<tr>'+cols.map(function(c){return '<th class="'+(c[2]||'')+'">'+c[1]+'</th>'}).join('')+'<th></th></tr>';
+  $('tbody').innerHTML=ROWS.map(function(r,ix){
+    return '<tr>'+cols.map(function(c){
+      var v=r[c[0]];if(c[2]==='n')v=(v===null||v===undefined)?'-':fmt(v);
+      var bad=(c[0]==='variance'&&Math.abs(r[c[0]])>0.5)?' err':'';return '<td class="'+(c[2]||'')+bad+'">'+String(v).replace(/</g,'&lt;')+'</td>';
+    }).join('')+(tab==='items'?'<td><button class="ed" data-edit="'+ix+'">Edit</button> <button class="del" data-del="'+ix+'">Delete</button></td></tr>':'<td><button class="del" data-id="'+r.id+'">Delete</button></td></tr>');
+  }).join('');
+  $('empty').classList.toggle('hide',ROWS.length>0);
+}
+function resetFields(){
+  if(tab==='items'){resetItem();return}
+  $('qty').value=1;$('desc').value='';$('amount').value='';$('supplier').value='';
+  ['mpdep','mpwd','mpcomm','mpcap','mpcf','mpcc','mpnotes'].forEach(function(i){$(i).value=''});
+  autofill();if(tab==='mpesa'){mpCalc();prefillMp()}
+}
+function mpCalc(){
+  var v=(num('mpcf')+num('mpcc'))-(num('mpof')+num('mpoc'))-num('mpcomm')-num('mpcap');
+  v=Math.round(v*100)/100;$('mpvar').value=fmt(v);$('mpvar').style.color=Math.abs(v)>0.5?'var(--red)':'var(--mint)';return v;
+}
+function prefillMp(){
+  if(tab!=='mpesa')return;
+  call('lastMpesa',[biz(),$('date').value,PIN],function(r){
+    $('note').classList.remove('hide');
+    if(r){$('mpof').value=r.cfloat;$('mpoc').value=r.ccash;$('note').textContent='Opening balances filled from the closing on '+r.date+'. Variance should be 0.'}
+    else{$('note').textContent='No earlier record for this business: enter the opening float and cash. Variance should be 0.'}
+    mpCalc();
+  });
+}
+function save(){
+  if(tab==='items')return saveItemForm();
+  if(!$('date').value) return msg('Choose a date.',false);
+  var r={date:$('date').value,biz:biz()};
+  if(tab!=='exp'&&tab!=='mpesa'){
+    if(num('qty')<1) return msg('Quantity must be at least 1.',false);
+    r.cat=$('cat').value;r.item=$('item').value;r.qty=num('qty');r.cost=num('cost');
+  }
+  if(tab==='sales'){
+    r.price=num('price');
+    if(r.cat==='M-Pesa'&&r.price<=0) return msg('Enter the commission earned as the Unit price.',false);
+  }else if(tab==='stock'){
+    r.supplier=$('supplier').value;
+  }else if(tab==='mpesa'){
+    if($('mpcf').value===''||$('mpcc').value==='') return msg('Enter the closing float and closing cash.',false);
+    r.ofloat=num('mpof');r.ocash=num('mpoc');r.dep=num('mpdep');r.wd=num('mpwd');r.comm=num('mpcomm');r.cap=num('mpcap');
+    r.cfloat=num('mpcf');r.ccash=num('mpcc');r.notes=$('mpnotes').value;
+    var v=mpCalc();
+    if(Math.abs(v)>0.5&&!confirm('Variance is KES '+fmt(v)+'. Recount before saving?\n\nOK = save anyway')) return;
+  }else{
+    if(num('amount')<=0) return msg('Enter an amount greater than 0.',false);
+    r.etype=$('etype').value;r.desc=$('desc').value;r.amount=num('amount');
+  }
+  busy(true);
+  call('saveEntry',[tab,r,PIN],function(res){busy(false);if(res.alert)warn('Saved '+res.id+'. '+res.alert);else msg('Saved '+res.id,true);resetFields();load()});
+}
+function start(){
+  call('getItems',[PIN],function(it){ITEMS=it;GOOD=PIN;$('lk').classList.add('hide');showTab(tab)});
+}
+$('tabs').addEventListener('click',function(e){if(e.target.dataset.t)showTab(e.target.dataset.t)});
+$('cat').addEventListener('change',fillItems);
+$('item').addEventListener('change',autofill);
+['qty','cost','price'].forEach(function(i){$(i).addEventListener('input',calc)});
+$('save').addEventListener('click',save);
+$('clear').addEventListener('click',function(){resetFields();$('msg').textContent=''});
+$('tbody').addEventListener('click',function(e){
+  var t=e.target;
+  if(t.dataset.edit!==undefined){editItem(+t.dataset.edit);return}
+  if(t.dataset.del!==undefined){delItem(+t.dataset.del);return}
+  var id=e.target.dataset.id;if(!id)return;
+  if(!confirm('Delete '+id+'?'))return;
+  call('deleteEntry',[tab,id,PIN],function(){msg('Deleted '+id,true);load()});
+});
+['mpof','mpoc','mpdep','mpwd','mpcomm','mpcap','mpcf','mpcc'].forEach(function(i){$(i).addEventListener('input',mpCalc)});
+document.querySelectorAll('input[name=biz]').forEach(function(e){e.addEventListener('change',prefillMp)});
+$('date').addEventListener('change',prefillMp);
+function resetItem(){
+  editing=null;$('itcat').disabled=false;$('itname').readOnly=false;
+  ['itname','itcost','itprice','itlevel'].forEach(function(i){$(i).value=''});
+  $('save').textContent=saveLabel();
+  if(tab==='items'){$('ftitle').textContent=TITLES.items;$('note').classList.add('hide')}
+}
+function editItem(ix){
+  var r=ROWS[ix];editing={cat:r.cat,item:r.item};
+  $('itcat').value=r.cat;$('itcat').disabled=true;$('itname').value=r.item;$('itname').readOnly=true;
+  $('itcost').value=r.cost;$('itprice').value=r.price;$('itlevel').value=r.level===null?'':r.level;
+  $('save').textContent=saveLabel();$('ftitle').textContent='Edit item';$('msg').textContent='';
+  $('note').classList.remove('hide');$('note').textContent='Name and category cannot be changed because past entries are matched by name.';
+  window.scrollTo(0,0);
+}
+function refreshItems(){call('getItems',[PIN],function(it){ITEMS=it;load()})}
+function saveItemForm(){
+  var name=$('itname').value.trim();
+  if(!name)return msg('Enter the item name.',false);
+  if($('itcost').value===''||$('itprice').value==='')return msg('Enter the unit cost and unit price.',false);
+  var r={mode:editing?'edit':'new',cat:$('itcat').value,item:name,cost:num('itcost'),price:num('itprice'),level:$('itlevel').value};
+  busy(true);
+  call('saveItem',[r,PIN],function(){busy(false);msg(editing?'Item updated.':'Item added.',true);resetItem();refreshItems()});
+}
+function delItem(ix){
+  var r=ROWS[ix];
+  if(!confirm('Delete '+r.item+' from the price list?\nPast entries are kept.'))return;
+  call('deleteItem',[r.cat,r.item,PIN],function(){msg('Item deleted.',true);refreshItems()});
+}
+$('lkc').addEventListener('click',function(){PIN=GOOD;$('lk').classList.add('hide');showTab('sales')});
+$('lkf').addEventListener('submit',function(e){e.preventDefault();PIN=$('pin').value;start()});
+$('date').value=today();
+google.script.run.withSuccessHandler(function(i){
+  $('dash').href=i.appUrl+'?page=dashboard';
+  if(i.needPin)showLock();else start();
+}).getInit('entry');
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html><head><base target="_top"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1016;--panel:#151a23;--line:#252d3c;--ink:#eef1f6;--mute:#8b96aa;--a:#ffb547;--s:#5cc8ff;--good:#3ddc97;--bad:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.45 Inter,"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h2,.num,.brand b{font-family:"Space Grotesk","Segoe UI",Arial,sans-serif}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(13,16,22,.92);backdrop-filter:blur(8px);z-index:5}
+.brand{font-size:13px;color:var(--mute)}.brand b{font-size:21px;color:var(--ink);letter-spacing:.02em;margin-right:8px}.brand b i{font-style:normal;color:var(--a)}.brand b u{text-decoration:none;color:var(--s)}
+.bar-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.live{color:var(--mute);font-size:12.5px}
+.btn{font:inherit;font-weight:600;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:7px}.btn svg{width:16px;height:16px;flex:none}
+.btn.blue{background:#2f6df6;border-color:#2f6df6;color:#fff}.btn.blue:hover{background:#4a80f8}
+.btn.gold{background:#f5b942;border-color:#f5b942;color:#2a1c00}.btn.gold:hover{background:#ffc95c}
+.btn.pri{background:var(--ink);color:var(--bg);border-color:var(--ink)}.btn:focus-visible,input:focus-visible{outline:2px solid var(--s);outline-offset:2px}
+main{max-width:1240px;margin:0 auto;padding:18px 22px 50px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;max-width:100%;overflow-x:auto}
+.seg button{font:inherit;font-size:13px;font-weight:500;color:var(--mute);background:none;border:0;border-radius:9px;padding:7px 12px;cursor:pointer;white-space:nowrap}.seg .on{background:var(--ink);color:var(--bg);font-weight:600}
+.dates{display:flex;gap:6px;align-items:center;color:var(--mute)}input[type=date]{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 9px;color-scheme:dark}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.tile{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.tile span{display:block;color:var(--mute);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase}.tile b{display:block;font-size:30px;font-weight:700;margin:4px 0 2px}
+small.good{color:var(--good)}small.bad{color:var(--bad)}b.bad{color:var(--bad)}.tile small{display:block;font-size:12.5px}
+.row{display:grid;gap:14px;margin-top:14px}.r1{grid-template-columns:2fr 1fr}.r2{grid-template-columns:1fr 1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;min-width:0}
+.card h2{margin:0;font-size:18px;font-weight:700}.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.chart{height:290px}.cap{color:var(--mute);font-size:13px;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mute);font-weight:500}.n{text-align:right}
+.tw{overflow-x:auto}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.big{font:700 34px "Space Grotesk",sans-serif;margin:6px 0}.prog{height:12px;border-radius:6px;background:#202838;overflow:hidden;display:flex}.prog i{display:block;height:100%}
+.leg{display:flex;gap:18px;margin:8px 0 12px;font-size:13.5px}.cr{display:grid;grid-template-columns:72px 1fr 170px;gap:10px;align-items:center;margin:8px 0}.cr .prog{height:14px}.cr b{text-align:right;font-weight:600;font-size:13px}
+#msg{color:var(--bad);min-height:18px;font-size:13px;margin-bottom:6px}
+.lk{position:fixed;inset:0;background:rgba(6,9,14,.96);display:flex;align-items:center;justify-content:center;z-index:50}.lk.hide{display:none}
+.lk form{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;width:min(320px,90vw)}.lk h2{margin:0 0 8px}
+.lk input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}.lk .btn{width:100%;margin-top:12px}
+.apill{background:#3a1b1f;color:var(--bad);border:1px solid #5a2a30;border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:600;text-decoration:none}.apill.hide{display:none}
+.bdg{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}.bdg.out{background:#3a1b1f;color:var(--bad)}.bdg.low{background:#3b2f14;color:var(--a)}.bdg.ok{background:#173226;color:var(--good)}.card.alert{border-color:#5a2a30}
+@media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.r1,.r2{grid-template-columns:1fr}.cr{grid-template-columns:64px 1fr}.cr b{grid-column:1/-1;text-align:left}}
+@media print{.bar-r,.filters{display:none}.bar{position:static}}
+</style></head><body>
+<div class="lk hide" id="lk"><form id="lkf"><h2>Owner PIN</h2><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"><div id="lkm" style="color:var(--bad);margin-top:6px"></div><button class="btn pri">Unlock</button></form></div>
+<header class="bar"><div class="brand"><b><i>GATHAITI</i> &amp; <u>KANJUKU</u></b>Sales, stock and profit</div>
+<div class="bar-r"><a href="#al" class="apill hide" id="alp"></a><span class="live" id="live">Loading...</span><a class="btn" id="nav" target="_top" href="#">Data entry</a><button class="btn blue" id="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Refresh</button><button class="btn gold" onclick="print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>Download PDF</button></div></header>
+<main><div id="msg"></div>
+<div class="filters">
+<div class="seg" id="sp"><button data-v="today">Today</button><button data-v="yday">Yesterday</button><button data-v="7">7 days</button><button data-v="30" class="on">30 days</button><button data-v="month">This month</button><button data-v="all">All time</button></div>
+<div class="dates"><input type="date" id="from" aria-label="From"> to <input type="date" id="to" aria-label="To"></div>
+<div class="seg" id="sb"><button data-v="" class="on">Both</button><button data-v="gathaiti">Gathaiti</button><button data-v="kanjuku">Kanjuku</button></div>
+<div class="seg" id="sc"><button data-v="" class="on">All categories</button><button data-v="gas">Gas</button><button data-v="mpesa">M-Pesa</button><button data-v="agro">Agrovet</button></div></div>
+<div class="kpis" id="kp"></div>
+<div class="card" id="al" style="margin-top:14px"></div>
+<div class="row r1"><div class="card"><div class="head"><h2 id="ct">Daily gross profit</h2><div class="seg" id="sm"><button data-v="rev">Revenue</button><button data-v="gross" class="on">Gross profit</button><button data-v="net">Net profit</button></div></div>
+<div class="chart"><canvas id="ch"></canvas></div><div class="cap" id="ins"></div></div>
+<div class="card"><h2>Today</h2><div class="tw"><table id="td"></table></div><div class="cap">Follows the business and category filters. Not affected by the date range.</div></div></div>
+<div class="row r2"><div class="card" id="cb"></div><div class="card"><h2>M-Pesa float &amp; cash</h2><div class="tw"><table id="mp"></table></div></div></div>
+<div class="row"><div class="card"><div class="head"><h2>Day by day</h2><span class="cap" style="margin:0">Latest 31 days in the selected range</span></div><div class="tw"><table id="dy"></table></div></div></div>
+<div class="row"><div class="card"><div class="head"><h2>Stock</h2><span class="cap" style="margin:0">Received minus sold, all time</span></div><div class="tw"><table id="st"></table></div></div></div>
+</main>
+<script>
+const NAME={gathaiti:'Gathaiti',kanjuku:'Kanjuku'},COL={gathaiti:'#ffb547',kanjuku:'#5cc8ff'},CAT={gas:'Gas',mpesa:'M-Pesa',agro:'Agrovet'},ML={rev:'Revenue',gross:'Gross profit',net:'Net profit'};
+let D,chart,PIN='';const S={b:'',c:'',p:'30',m:'gross'};
+const $=i=>document.getElementById(i),f=n=>Math.round(n||0).toLocaleString('en-KE');
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const add=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)},T=()=>iso(new Date());
+const dl=(s,w)=>new Date(s+'T00:00:00').toLocaleDateString('en-GB',w?{weekday:'short',day:'2-digit',month:'short'}:{day:'2-digit',month:'short'});
+function span(){const t=T(),p=S.p;
+ if(p==='today')return[t,t];if(p==='yday'){const y=add(t,-1);return[y,y]}
+ if(p==='7')return[add(t,-6),t];if(p==='30')return[add(t,-29),t];if(p==='month')return[t.slice(0,8)+'01',t];
+ if(p==='custom')return[$('from').value||null,$('to').value||null];return[null,null]}
+function syncDates(){if(S.p==='custom')return;const[a,b]=span();$('from').value=a||'';$('to').value=b||''}
+const rowsIn=(a,b,biz)=>D.recs.filter(r=>(!biz||r.business===biz)&&(!a||r.date>=a)&&(!b||r.date<=b));
+function calc(rows,cat){const o={rev:0,gross:0,exp:0,mv:0};rows.forEach(r=>{const g=[r.gSales,r.gGross,r.eGas],a=[r.aSales,r.aGross,r.eAgro],m=[r.mComm,r.mComm,r.eMp];
+ (cat==='gas'?[g]:cat==='agro'?[a]:cat==='mpesa'?[m]:[g,a,m]).forEach(p=>{o.rev+=p[0];o.gross+=p[1];o.exp+=p[2]});
+ if(!cat||cat==='mpesa')o.mv+=r.mVar;if(!cat)o.exp+=r.eGen});o.net=o.gross-o.exp;return o}
+function seg(id,key){$(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;S[key]=b.dataset.v;[...$(id).children].forEach(x=>x.classList.toggle('on',x===b));if(key==='p')syncDates();if(D)render()}}
+seg('sp','p');seg('sb','b');seg('sc','c');seg('sm','m');
+['from','to'].forEach(i=>$(i).onchange=()=>{S.p='custom';[...$('sp').children].forEach(x=>x.classList.remove('on'));if(D)render()});
+$('go').onclick=load;
+function load(){$('msg').textContent='';$('live').textContent='Loading from the sheet...';
+ google.script.run.withSuccessHandler(d=>{D=d;render()})
+ .withFailureHandler(e=>{if(/PIN/.test(e.message)){lock('Wrong PIN');return}$('live').textContent='Not live';$('msg').textContent='Could not load: '+e.message}).getData(PIN)}
+function render(){
+ const[fr,to]=span(),rows=rowsIn(fr,to,S.b),s=calc(rows,S.c),dates=[...new Set(rows.map(r=>r.date))].sort();
+ const nd=fr&&to?Math.max(1,Math.round((new Date(to)-new Date(fr))/864e5)+1):Math.max(1,dates.length);
+ const pv=fr&&to?calc(rowsIn(add(fr,-nd),add(fr,-1),S.b),S.c):null;
+ const dlt=(a,b,inv)=>{if(b==null||b===0)return'';const p=(a-b)/Math.abs(b)*100,up=p>=0;return `<small class="${(inv?!up:up)?'good':'bad'}">${up?'&#9650;':'&#9660;'} ${Math.abs(Math.round(p))}% vs previous</small>`};
+ const mvTxt=(!S.c||S.c==='mpesa')&&Math.abs(s.mv)>.5?`<small class="bad">M-Pesa variance ${f(s.mv)}</small>`:'';
+ $('kp').innerHTML=[['Revenue',s.rev,pv&&pv.rev,0,''],['Gross profit',s.gross,pv&&pv.gross,0,''],['Expenses',s.exp,pv&&pv.exp,1,''],['Net profit',s.net,pv&&pv.net,0,mvTxt],['Avg net / day',s.net/nd,pv&&pv.net/nd,0,'']]
+  .map(([l,v,p,inv,x])=>`<div class="tile"><span>${l}</span><b class="num ${v<0?'bad':''}">${f(v)}</b>${dlt(v,p,inv)}${x}</div>`).join('');
+ // daily chart
+ let days=[];if(fr&&to){for(let d=fr;d<=to&&days.length<400;d=add(d,1))days.push(d)}else days=dates.slice();
+ const cut=days.length>60;if(cut)days=days.slice(-60);
+ const bs=['gathaiti','kanjuku'].filter(b=>!S.b||b===S.b),val=(b,d)=>{const o=calc(D.recs.filter(r=>r.business===b&&r.date===d),S.c);return o[S.m]};
+ const ds=bs.map(b=>({type:'bar',label:NAME[b],backgroundColor:COL[b],borderRadius:3,stack:'s',data:days.map(d=>val(b,d))}));
+ const tt=days.map((_,i)=>ds.reduce((a,x)=>a+x.data[i],0)),n=tt.length,mx=(n-1)/2,my=tt.reduce((a,b)=>a+b,0)/Math.max(n,1),den=tt.reduce((a,_,i)=>a+(i-mx)**2,0);
+ if(n>2&&den)ds.push({type:'line',label:'Trend',borderColor:'#eef1f6',borderDash:[6,5],borderWidth:2,pointRadius:0,data:tt.map((_,i)=>my+tt.reduce((a,y,j)=>a+(j-mx)*(y-my),0)/den*(i-mx))});
+ $('ct').textContent='Daily '+ML[S.m].toLowerCase();
+ Chart.defaults.color='#8b96aa';if(chart)chart.destroy();
+ chart=new Chart($('ch'),{data:{labels:days.map(d=>dl(d)),datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index'},scales:{x:{stacked:true,grid:{display:false},ticks:{maxTicksLimit:12}},y:{stacked:true,grid:{color:'#252d3c'}}}}});
+ const per=dates.map(d=>({d,v:calc(rows.filter(r=>r.date===d),S.c)[S.m]}));
+ if(per.length>1){const hi=per.reduce((a,b)=>b.v>a.v?b:a),lo=per.reduce((a,b)=>b.v<a.v?b:a);
+  $('ins').innerHTML=`Best day <b>${dl(hi.d)}</b> (KES ${f(hi.v)}) &middot; Slowest <b>${dl(lo.d)}</b> (KES ${f(lo.v)})${cut?' &middot; chart shows the last 60 days':''}`}else $('ins').textContent=cut?'Chart shows the last 60 days.':'';
+ // today table
+ const t=T(),y=add(t,-1),bl=S.b?[S.b]:['gathaiti','kanjuku'];
+ const tr=(lab,b,c)=>{const a=calc(rowsIn(t,t,b),S.c),q=calc(rowsIn(y,y,b),S.c);return `<tr><td>${c?`<span class="dot" style="background:${c}"></span>`:''}${lab}</td><td class="n">${f(a.rev)}</td><td class="n">${f(a.gross)}</td><td class="n">${f(q.gross)}</td></tr>`};
+ $('td').innerHTML='<tr><th>Business</th><th class="n">Revenue</th><th class="n">Gross profit</th><th class="n">Yesterday gross</th></tr>'+bl.map(b=>tr(NAME[b],b,COL[b])).join('')+(bl.length>1?tr('<b>Total</b>',''):'');
+ // profit by business
+ const all=rowsIn(fr,to,''),by=b=>calc(all.filter(r=>r.business===b),S.c),g=by('gathaiti'),k=by('kanjuku'),sh=Math.max(g.net,0)+Math.max(k.net,0)||1;
+ let h=`<h2>Profit by business</h2><div class="cap" style="margin:6px 0 0">Combined net profit (KES)</div><div class="big ${g.net+k.net<0?'bad':''}">${f(g.net+k.net)}</div>
+ <div class="prog"><i style="width:${Math.max(g.net,0)/sh*100}%;background:var(--a)"></i><i style="width:${Math.max(k.net,0)/sh*100}%;background:var(--s)"></i></div>
+ <div class="leg"><span><span class="dot" style="background:var(--a)"></span>Gathaiti ${f(g.net)}</span><span><span class="dot" style="background:var(--s)"></span>Kanjuku ${f(k.net)}</span></div>`;
+ ['gas','mpesa','agro'].forEach(c=>{const a=calc(all.filter(r=>r.business==='gathaiti'),c).gross,b=calc(all.filter(r=>r.business==='kanjuku'),c).gross,u=Math.max(a,0)+Math.max(b,0)||1;
+  h+=`<div class="cr"><span>${CAT[c]}</span><div class="prog"><i style="width:${Math.max(a,0)/u*100}%;background:var(--a)"></i><i style="width:${Math.max(b,0)/u*100}%;background:var(--s)"></i></div><b>${f(a)} / ${f(b)} gross</b></div>`});
+ $('cb').innerHTML=h;
+ // M-Pesa
+ const mall=D.mpesa||[];
+ $('mp').innerHTML='<tr><th>Business</th><th>Last closing</th><th class="n">Float</th><th class="n">Cash</th><th class="n">Deposits</th><th class="n">Withdrawals</th><th class="n">Commission</th><th class="n">Variance</th></tr>'+
+ bl.map(b=>{const mine=mall.filter(r=>r.business===b),last=mine.slice().sort((p,q)=>q.date.localeCompare(p.date))[0],sel=mine.filter(r=>(!fr||r.date>=fr)&&(!to||r.date<=to)),sm=x=>sel.reduce((a,r)=>a+r[x],0),bad=sel.filter(r=>Math.abs(r.variance)>.5),net=sel.reduce((a,r)=>a+r.variance,0);
+  return `<tr><td><span class="dot" style="background:${COL[b]}"></span>${NAME[b]}</td><td>${last?dl(last.date):'-'}</td><td class="n">${last?f(last.cfloat):'-'}</td><td class="n">${last?f(last.ccash):'-'}</td><td class="n">${f(sm('dep'))}</td><td class="n">${f(sm('wd'))}</td><td class="n">${f(sm('comm'))}</td><td class="n ${bad.length?'bad':''}">${f(net)}${bad.length?' ('+bad.length+' day'+(bad.length>1?'s':'')+' off)':''}</td></tr>`}).join('');
+ // day by day
+ const dd=dates.slice().reverse().slice(0,31),pb=!S.b;
+ $('dy').innerHTML=`<tr><th>Date</th><th class="n">Revenue</th><th class="n">Gross profit</th><th class="n">Expenses</th><th class="n">Net profit</th>${pb?'<th class="n">Gathaiti net</th><th class="n">Kanjuku net</th>':''}</tr>`+
+ dd.map(d=>{const r=rows.filter(x=>x.date===d),o=calc(r,S.c);return `<tr><td>${dl(d,1)}</td><td class="n">${f(o.rev)}</td><td class="n">${f(o.gross)}</td><td class="n">${f(o.exp)}</td><td class="n ${o.net<0?'bad':''}">${f(o.net)}</td>${pb?['gathaiti','kanjuku'].map(b=>`<td class="n">${f(calc(r.filter(x=>x.business===b),S.c).net)}</td>`).join(''):''}</tr>`}).join('')||'<tr><td colspan="7" class="cap">No entries in this range.</td></tr>';
+ // stock and reorder alerts
+ const st=D.stock.filter(r=>!S.b||r.business===S.b),stat=r=>r.balance<=0?'out':(r.level!=null&&r.balance<=r.level?'low':'ok');
+ const bdg=r=>`<span class="bdg ${stat(r)}">${{out:'OUT',low:'LOW',ok:'OK'}[stat(r)]}</span>`,tag=r=>`<span class="dot" style="background:${COL[r.business]||'#888'}"></span>${NAME[r.business]||r.business}`;
+ const al=st.filter(r=>stat(r)!=='ok').sort((a,b)=>(stat(a)==='out'?0:1)-(stat(b)==='out'?0:1)||a.balance-b.balance);
+ $('al').className='card'+(al.length?' alert':'');
+ $('al').innerHTML='<div class="head"><h2>Reorder alerts</h2><span class="cap" style="margin:0">Reorder levels are set in the Items tab of the sheet</span></div>'+(al.length?
+  `<div class="tw"><table><tr><th>Business</th><th>Type</th><th>Item</th><th class="n">In stock</th><th class="n">Reorder at</th><th>Status</th></tr>${al.map(r=>`<tr><td>${tag(r)}</td><td>${r.cat==='gas'?'Gas':'Agrovet'}</td><td>${r.item}</td><td class="n">${r.balance}</td><td class="n">${r.level==null?'-':r.level}</td><td>${bdg(r)}</td></tr>`).join('')}</table></div>`
+  :`<div class="cap" style="margin:0">${st.some(r=>r.level!=null)?'All stock is above its reorder level.':'No reorder levels set yet. Add a number in the Reorder level column of the Items tab.'}</div>`);
+ $('alp').textContent=al.length+' reorder alert'+(al.length>1?'s':'');$('alp').classList.toggle('hide',!al.length);
+ $('st').innerHTML='<tr><th>Business</th><th>Type</th><th>Item</th><th class="n">Received</th><th class="n">Sold</th><th class="n">In stock</th><th class="n">Reorder at</th><th>Status</th></tr>'+
+ st.map(r=>`<tr><td>${tag(r)}</td><td>${r.cat==='gas'?'Gas':'Agrovet'}</td><td>${r.item}</td><td class="n">${r.received}</td><td class="n">${r.sold}</td><td class="n ${stat(r)==='out'?'bad':''}">${r.balance}</td><td class="n">${r.level==null?'-':r.level}</td><td>${bdg(r)}</td></tr>`).join('');
+ $('live').textContent='Live \u00b7 updated '+new Date(D.updated).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function lock(m){$('lk').classList.remove('hide');$('lkm').textContent=m||'';$('pin').value='';$('pin').focus()}
+$('lkf').onsubmit=e=>{e.preventDefault();PIN=$('pin').value;$('lk').classList.add('hide');load()};
+syncDates();
+google.script.run.withSuccessHandler(i=>{$('nav').href=i.appUrl;if(i.needPin)lock();else load()}).getInit('owner');
+</script></body></html>
