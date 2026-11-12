@@ -80,7 +80,7 @@ function saveEntry(tab,r,pin){
    const ofl=num_(r.ofloat),oc=num_(r.ocash),dep=num_(r.dep),wd=num_(r.wd),comm=num_(r.comm),cap=num_(r.cap),cf=num_(r.cfloat),cc=num_(r.ccash);
    if([ofl,oc,dep,wd,comm,cap,cf,cc].some(x=>x<0))throw new Error('Amounts cannot be negative');
    if(read_('MPesa').some(x=>day_(x[1])===date&&String(x[2])===biz))throw new Error('M-Pesa is already recorded for this business and date');
-   const variance=Math.round(((cf+cc)-(ofl+oc)-dep+wd-comm-cap)*100)/100;
+   const variance=Math.round(((cf+cc)-(ofl+oc)-comm-cap)*100)/100;
    row=[id,date,biz,ofl,oc,dep,wd,comm,cap,cf,cc,variance,txt_(r.notes,200),now];
   }else if(tab==='exp'){
    const a=num_(r.amount);if(a<=0)throw new Error('Amount must be more than zero');
