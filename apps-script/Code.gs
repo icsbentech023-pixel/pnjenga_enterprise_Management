@@ -9,6 +9,13 @@ const HEAD={
   MPesa:['ID','Date','Business','Opening float','Opening cash','Deposits','Withdrawals','Commission','Capital added','Closing float','Closing cash','Variance','Notes','Created']
 };
 const TAB={sales:{sheet:'Sales',prefix:'S'},stock:{sheet:'Stock',prefix:'R'},exp:{sheet:'Expenses',prefix:'E'},mpesa:{sheet:'MPesa',prefix:'M'}};
+const EXISTING_SHEET_ID='1K0FrURKoAXCbmPTynxxYr-_LmhxunI7FtmG5LHa_LJE';
+// Connect and inspect the user's existing workbook before creating or changing any tabs.
+function connectExistingSheet(){
+ const ss=SpreadsheetApp.openById(EXISTING_SHEET_ID);
+ PropertiesService.getScriptProperties().setProperty('SHEET_ID',EXISTING_SHEET_ID);
+ return {url:ss.getUrl(),name:ss.getName(),tabs:ss.getSheets().map(sh=>({name:sh.getName(),rows:sh.getLastRow(),columns:sh.getLastColumn(),headers:sh.getLastColumn()?sh.getRange(1,1,1,Math.min(sh.getLastColumn(),20)).getDisplayValues()[0]:[]}))};
+}
 const MAP={
  sales:r=>({id:r[0],date:day_(r[1]),biz:r[2],cat:r[3],item:r[4],qty:r[5],cost:r[6],price:r[7],total:r[8],profit:r[9]}),
  stock:r=>({id:r[0],date:day_(r[1]),biz:r[2],cat:r[3],item:r[4],qty:r[5],cost:r[6],tcost:r[7],supplier:r[8]}),
@@ -25,19 +32,21 @@ function setup(){
  const P=PropertiesService.getScriptProperties();
  let ss=P.getProperty('SHEET_ID')?SpreadsheetApp.openById(P.getProperty('SHEET_ID')):null;
  if(!ss){ss=SpreadsheetApp.create('PNJENGA ENTERPRISE — Gathaiti & Kanjuku');P.setProperty('SHEET_ID',ss.getId());}
+ let createdItems=false;
  Object.keys(HEAD).forEach(n=>{
-  const sh=ss.getSheetByName(n)||ss.insertSheet(n);
+  let sh=ss.getSheetByName(n);
+  if(!sh){sh=ss.insertSheet(n);if(n==='Items')createdItems=true;}
   if(sh.getMaxColumns()<HEAD[n].length)sh.insertColumnsAfter(sh.getMaxColumns(),HEAD[n].length-sh.getMaxColumns());
   const hdr=sh.getRange(1,1,1,HEAD[n].length).getValues()[0];
   HEAD[n].forEach((h,i)=>{if(!hdr[i])sh.getRange(1,i+1).setValue(h).setFontWeight('bold');});
   sh.setFrozenRows(1);if(n!=='Items')sh.getRange('B:B').setNumberFormat('@');
  });
- const items=ss.getSheetByName('Items');
- if(items.getLastRow()<2)items.getRange(2,1,6,5).setValues([
+ // Only seed defaults when this setup creates a brand-new Items tab.
+ if(createdItems){const items=ss.getSheetByName('Items');items.getRange(2,1,6,5).setValues([
   ['Gas','6kg cylinder (full)',2600,3000,5],['Gas','13kg cylinder (full)',5400,6000,5],['Gas','Burner / grill',900,1200,2],
   ['Agrovet','Dairy meal 70kg',2300,2600,10],['Agrovet','Fertilizer CAN 50kg',3900,4300,10],['Agrovet','Dewormer 100ml',350,500,5]
- ]);
- const extra=ss.getSheetByName('Sheet1');if(extra&&ss.getSheets().length>1)ss.deleteSheet(extra);
+ ]);}
+ // Existing tabs (including Sheet1) are deliberately never deleted.
  Logger.log('Spreadsheet: '+ss.getUrl());return ss.getUrl();
 }
 const num_=x=>parseFloat(x)||0;
