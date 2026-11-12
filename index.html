@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f35">
+  <title>PNJENGA ENTERPRISE | Gathaiti & Kanjuku</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">P</div><div><h1>PNJENGA ENTERPRISE</h1><p>Gathaiti &amp; Kanjuku · Business Management</p></div></div>
+  <div class="top-controls">
+    <label class="sr-only" for="branchFilter">Branch</label>
+    <select id="branchFilter"><option>All Branches</option><option>Gathaiti</option><option>Kanjuku</option></select>
+    <span class="role-label">Prototype · Admin view</span>
+  </div>
+</header>
+
+<main class="container">
+  <section class="welcome">
+    <div><p class="eyebrow">BUSINESS OVERVIEW</p><h2>Good business starts with clear records.</h2><p class="muted">Monitor sales and transactions across both branches.</p></div>
+    <div id="today" class="today"></div>
+  </section>
+
+  <section class="metrics">
+    <article class="metric"><span>Total Sales</span><strong id="totalSales">KES 0</strong><small>Gas + Agrovet</small></article>
+    <article class="metric"><span>M-Pesa Received</span><strong id="mpesaTotal">KES 0</strong><small>Recorded M-Pesa entries</small></article>
+    <article class="metric"><span>Cash Sales</span><strong id="cashTotal">KES 0</strong><small>Gas + Agrovet entries</small></article>
+    <article class="metric"><span>Entries Recorded</span><strong id="entryCount">0</strong><small>Saved on this device</small></article>
+  </section>
+
+  <nav class="tabs" aria-label="Dashboard sections">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="gas">Gas</button>
+    <button class="tab" data-tab="mpesa">M-Pesa</button>
+    <button class="tab" data-tab="agrovet">Agrovet</button>
+    <button class="tab" data-tab="reconciliation">Reconciliation</button>
+  </nav>
+
+  <section id="overview" class="page">
+    <div class="columns">
+      <article class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">ACTIVITY</p><h3>Recent Entries</h3></div><button class="primary" id="addEntry">＋ Add Entry</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Branch</th><th>Module</th><th>Description</th><th class="number">Amount</th></tr></thead><tbody id="recentRows"></tbody></table></div>
+      </article>
+      <article class="panel">
+        <p class="eyebrow">SHORTCUTS</p><h3>Quick Entry</h3>
+        <div class="shortcuts">
+          <button data-new="Gas"><span>🔥</span>Gas Sale</button>
+          <button data-new="M-Pesa"><span>▣</span>M-Pesa</button>
+          <button data-new="Agrovet"><span>🌱</span>Agrovet Sale</button>
+        </div>
+        <div class="notice"><strong>Prototype notice</strong><br>Records are currently stored only in this browser. Staff logins, shared cloud storage, permissions and live synchronization are not connected yet. Do not use this prototype as the official business ledger.</div>
+      </article>
+    </div>
+  </section>
+
+  <section id="gas" class="page hidden"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">GAS BUSINESS</p><h3>Gas Sales</h3></div><button class="primary" data-new="Gas">＋ Record Sale</button></div><div id="gasRows"></div></article></section>
+  <section id="mpesa" class="page hidden"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">PAYMENTS</p><h3>M-Pesa Transactions</h3></div><button class="primary" data-new="M-Pesa">＋ Record Transaction</button></div><div id="mpesaRows"></div></article></section>
+  <section id="agrovet" class="page hidden"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">AGROVET BUSINESS</p><h3>Agrovet Sales</h3></div><button class="primary" data-new="Agrovet">＋ Record Sale</button></div><div id="agrovetRows"></div></article></section>
+  <section id="reconciliation" class="page hidden">
+    <article class="panel narrow"><p class="eyebrow">END-OF-DAY CONTROL</p><h3>M-Pesa Reconciliation</h3>
+      <div class="form-grid">
+        <label>Branch<select id="recBranch"><option>Gathaiti</option><option>Kanjuku</option></select></label>
+        <label>Date<input type="date" id="recDate"></label>
+        <label>Expected M-Pesa (KES)<input type="number" min="0" id="expected"></label>
+        <label>Actual M-Pesa (KES)<input type="number" min="0" id="actual"></label>
+      </div>
+      <button class="primary" id="calculate">Calculate Variance</button><div id="variance" class="variance hidden"></div>
+    </article>
+  </section>
+</main>
+
+<div class="modal hidden" id="entryModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <form class="dialog" id="entryForm">
+    <div class="panel-heading"><h3 id="modalTitle">Add Entry</h3><button type="button" class="icon-button" id="closeModal" aria-label="Close">✕</button></div>
+    <div class="form-grid">
+      <label>Module<select id="entryModule"><option>Gas</option><option>M-Pesa</option><option>Agrovet</option></select></label>
+      <label>Branch<select id="entryBranch"><option>Gathaiti</option><option>Kanjuku</option></select></label>
+      <label>Date<input id="entryDate" type="date" required></label>
+      <label>Amount (KES)<input id="entryAmount" type="number" min="0.01" step="0.01" required></label>
+      <label class="full">Description / Item<input id="entryDescription" placeholder="e.g. 13kg gas refill, deposit, fertilizer" required></label>
+      <label class="full hidden" id="codeField">M-Pesa Transaction Code<input id="entryCode" placeholder="Enter transaction code"></label>
+    </div>
+    <div class="dialog-actions"><button type="button" class="secondary" id="cancelEntry">Cancel</button><button class="primary" type="submit">Save Entry</button></div>
+  </form>
+</div>
+<footer>PNJENGA ENTERPRISE · Gathaiti &amp; Kanjuku</footer>
+<script src="app.js"></script>
+</body>
+</html>
