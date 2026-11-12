@@ -63,7 +63,8 @@ function auth_(pin,role){
  if((p.e||p.o)&&s!==p.e&&s!==p.o)throw new Error('Wrong PIN');
 }
 function getInit(role){const p=pins_();return{needPin:role==='owner'?true:!!(p.e||p.o),role};}
-function catKey_(v){return String(v||'').trim().toLowerCase()==='gas'?'gas':'agro';}\nfunction levels_(){const out={};read_('Items').forEach(r=>{if(!r[0]||!r[1]||r[4]===''||r[4]==null||isNaN(parseFloat(r[4])))return;out[catKey_(r[0])+'|'+String(r[1]).trim()]=parseFloat(r[4]);});return out;}
+function catKey_(v){return String(v||'').trim().toLowerCase()==='gas'?'gas':'agro';}
+function levels_(){const out={};read_('Items').forEach(r=>{if(!r[0]||!r[1]||r[4]===''||r[4]==null||isNaN(parseFloat(r[4])))return;out[catKey_(r[0])+'|'+String(r[1]).trim()]=parseFloat(r[4]);});return out;}
 function balance_(biz,cat,item){const m=r=>String(r[2])===biz&&r[3]===cat&&String(r[4])===item;return read_('Stock').filter(m).reduce((a,r)=>a+num_(r[5]),0)-read_('Sales').filter(m).reduce((a,r)=>a+num_(r[5]),0);}
 function getItems(pin){auth_(pin,'entry');const out={};read_('Items').forEach(r=>{if(r[0]&&r[1])(out[r[0]]=out[r[0]]||[]).push({n:String(r[1]),c:num_(r[2]),p:num_(r[3])});});return out;}
 function listEntries(tab,pin){auth_(pin,'entry');const t=TAB[tab];if(!t)throw new Error('Bad tab');return read_(t.sheet).slice(-60).reverse().map(MAP[tab]);}
