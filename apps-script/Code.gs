@@ -63,7 +63,7 @@ function auth_(pin,role){
  if((p.e||p.o)&&s!==p.e&&s!==p.o)throw new Error('Wrong PIN');
 }
 function getInit(role){const p=pins_();return{needPin:role==='owner'?true:!!(p.e||p.o),role};}
-function levels_(){const out={};read_('Items').forEach(r=>{if(r[4]===''||r[4]==null||isNaN(parseFloat(r[4])))return;out[(String(r[0]).toLowerCase()==='gas'?'gas':'agro')+'|'+String(r[1])]=parseFloat(r[4]);});return out;}
+function catKey_(v){return String(v||'').trim().toLowerCase()==='gas'?'gas':'agro';}\nfunction levels_(){const out={};read_('Items').forEach(r=>{if(!r[0]||!r[1]||r[4]===''||r[4]==null||isNaN(parseFloat(r[4])))return;out[catKey_(r[0])+'|'+String(r[1]).trim()]=parseFloat(r[4]);});return out;}
 function balance_(biz,cat,item){const m=r=>String(r[2])===biz&&r[3]===cat&&String(r[4])===item;return read_('Stock').filter(m).reduce((a,r)=>a+num_(r[5]),0)-read_('Sales').filter(m).reduce((a,r)=>a+num_(r[5]),0);}
 function getItems(pin){auth_(pin,'entry');const out={};read_('Items').forEach(r=>{if(r[0]&&r[1])(out[r[0]]=out[r[0]]||[]).push({n:String(r[1]),c:num_(r[2]),p:num_(r[3])});});return out;}
 function listEntries(tab,pin){auth_(pin,'entry');const t=TAB[tab];if(!t)throw new Error('Bad tab');return read_(t.sheet).slice(-60).reverse().map(MAP[tab]);}
@@ -100,7 +100,7 @@ function saveEntry(tab,r,pin){
   return{id,alert};
  }finally{lock.releaseLock();}
 }
-function deleteEntry(tab,id,pin){auth_(pin,'entry');const t=TAB[tab];if(!t)throw new Error('Bad tab');const lock=LockService.getScriptLock();lock.waitLock(20000);try{const sh=ss_().getSheetByName(t.sheet),n=sh.getLastRow();if(n<2)throw new Error('Not found');const ids=sh.getRange(2,1,n-1,1).getValues();for(let i=0;i<ids.length;i++)if(ids[i][0]===id){sh.deleteRow(i+2);return true;}throw new Error('Not found');}finally{lock.releaseLock();}}
+function deleteEntry(tab,id,pin){auth_(pin,'owner');const t=TAB[tab];if(!t)throw new Error('Bad tab');const lock=LockService.getScriptLock();lock.waitLock(20000);try{const sh=ss_().getSheetByName(t.sheet),n=sh.getLastRow();if(n<2)throw new Error('Not found');const ids=sh.getRange(2,1,n-1,1).getValues();for(let i=0;i<ids.length;i++)if(ids[i][0]===id){sh.deleteRow(i+2);return true;}throw new Error('Not found');}finally{lock.releaseLock();}}
 function lastMpesa(biz,date,pin){auth_(pin,'entry');const rows=read_('MPesa').filter(r=>String(r[2])===String(biz).toUpperCase()&&day_(r[1])<String(date)).sort((a,b)=>day_(b[1]).localeCompare(day_(a[1])));return rows.length?{date:day_(rows[0][1]),cfloat:num_(rows[0][9]),ccash:num_(rows[0][10])}:null;}
 function authItems_(pin){const p=pins_();if(p.o){if(String(pin||'')!==p.o)throw new Error('Wrong owner PIN');}else auth_(pin,'entry');}
 function listItems(pin){authItems_(pin);return read_('Items').filter(r=>r[0]&&r[1]).map(r=>({cat:String(r[0]),item:String(r[1]),cost:num_(r[2]),price:num_(r[3]),level:r[4]===''||r[4]==null?null:num_(r[4])}));}
@@ -110,11 +110,18 @@ function getData(pin){
  auth_(pin,'owner');const recs={},stock={};
  const R=(d,b)=>recs[d+'|'+b]=recs[d+'|'+b]||{date:d,business:b,gSales:0,gGross:0,aSales:0,aGross:0,mComm:0,mVar:0,expenses:0};
  const S=(b,cat,item,f,q)=>{const k=[b,cat,item].join('|');(stock[k]=stock[k]||{business:b,cat,item,received:0,sold:0})[f]+=q;};
- read_('Sales').forEach(r=>{const b=String(r[2]).toLowerCase(),x=R(day_(r[1]),b),q=num_(r[5]),tot=num_(r[8]),pr=num_(r[9]);if(r[3]==='Gas'){x.gSales+=tot;x.gGross+=pr;S(b,'gas',r[4],'sold',q);}else if(r[3]==='Agrovet'){x.aSales+=tot;x.aGross+=pr;S(b,'agro',r[4],'sold',q);}});
+ // Seed the stock view from the Items catalogue for both branches. This makes zero-stock
+ // items and reorder thresholds visible even before the first receipt or sale.
+ read_('Items').forEach(r=>{
+  if(!r[0]||!r[1])return;
+  const cat=catKey_(r[0]),item=String(r[1]).trim();
+  BIZ.forEach(b=>{const k=[b.toLowerCase(),cat,item].join('|');stock[k]=stock[k]||{business:b.toLowerCase(),cat,item,received:0,sold:0};});
+ });
+ read_('Sales').forEach(r=>{const b=String(r[2]).toLowerCase(),cat=catKey_(r[3]),x=R(day_(r[1]),b),q=num_(r[5]),tot=num_(r[8]),pr=num_(r[9]);if(cat==='gas'){x.gSales+=tot;x.gGross+=pr;}else{x.aSales+=tot;x.aGross+=pr;}S(b,cat,r[4],'sold',q);});
  const mpesa=read_('MPesa').map(r=>({date:day_(r[1]),business:String(r[2]).toLowerCase(),dep:num_(r[5]),wd:num_(r[6]),comm:num_(r[7]),variance:num_(r[11]),cfloat:num_(r[9]),ccash:num_(r[10])}));
  mpesa.forEach(m=>{const x=R(m.date,m.business);x.mComm+=m.comm;x.mVar+=Math.abs(m.variance);});
- read_('Stock').forEach(r=>S(String(r[2]).toLowerCase(),r[3]==='Gas'?'gas':'agro',r[4],'received',num_(r[5])));
+ read_('Stock').forEach(r=>S(String(r[2]).toLowerCase(),catKey_(r[3]),r[4],'received',num_(r[5])));
  read_('Expenses').forEach(r=>R(day_(r[1]),String(r[2]).toLowerCase()).expenses+=num_(r[5]));
- const lv=levels_(),rows=Object.values(stock).map(r=>Object.assign(r,{balance:r.received-r.sold,level:lv[r.cat+'|'+r.item]??null})).sort((a,b)=>(a.business+a.cat+a.item).localeCompare(b.business+b.cat+b.item));
+ const lv=levels_(),rows=Object.values(stock).map(r=>Object.assign(r,{balance:r.received-r.sold,level:lv[r.cat+'|'+String(r.item).trim()]??null})).sort((a,b)=>(a.business+a.cat+a.item).localeCompare(b.business+b.cat+b.item));
  return{recs:Object.values(recs),stock:rows,mpesa,updated:new Date().toISOString(),items:listItems(pin)};
 }
