@@ -13,14 +13,15 @@ This repository now includes a Google Apps Script + Google Sheets implementation
 2. Copy `apps-script/Code.gs` into the script's `Code.gs` file.
 3. Create two HTML files named exactly `Index` and `DataEntry`; paste the matching repository HTML files (omit the .html suffix in the Apps Script editor's file name).
 4. In Project Settings, set the script time zone to `Africa/Nairobi`.
-5. Run `setup()` from the editor and authorize access. It creates the Google Sheet database and starter item catalogue. Copy the spreadsheet URL from the execution log.
-6. In Apps Script Project Settings → Script Properties, add:
+5. For the existing Pnjenga workbook, use the spreadsheet ID supplied by the owner in `EXISTING_SHEET_ID` in `Code.gs`. Run `connectExistingSheet()` and authorize access. It stores the existing ID in Script Properties and returns the workbook's tab names, row counts and header rows for review.
+6. **Do not run `setup()` until the existing workbook's tabs and column layouts have been reviewed and mapped.** Setup adds missing application tabs and headers; it is not a data-migration tool. Existing tabs are not deleted and starter items are seeded only if setup creates a brand-new `Items` tab.
+7. In Apps Script Project Settings → Script Properties, add:
    - `ENTRY_PIN`: a strong staff PIN
    - `OWNER_PIN`: a different strong owner PIN
-   - `SHEET_ID`: the spreadsheet ID created by setup (set automatically)
-7. Never commit real PINs, spreadsheet credentials, or private data to GitHub.
-8. Deploy → New deployment → Web app. Execute as **Me**. Choose access appropriate to your Google account/Workspace policy. Share the deployed URL only with authorized staff.
-9. Open the deployment URL for staff entry. The owner dashboard is at the same URL with `?page=dashboard`.
+   - `SHEET_ID`: set automatically by `connectExistingSheet()`
+8. Never commit real PINs, spreadsheet credentials, or private data to GitHub.
+9. Deploy → New deployment → Web app. Execute as **Me**. Choose access appropriate to your Google account/Workspace policy. Share the deployed URL only with authorized staff.
+10. Open the deployment URL for staff entry. The owner dashboard is at the same URL with `?page=dashboard`.
 
 ## Sheets and functionality
 - `Items`: Gas/Agrovet catalogue, unit cost, selling price and reorder threshold.
