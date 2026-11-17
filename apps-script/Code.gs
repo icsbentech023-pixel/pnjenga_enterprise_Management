@@ -60,27 +60,27 @@ const day_=v=>v instanceof Date?Utilities.formatDate(v,Session.getScriptTimeZone
 const txt_=(s,n)=>{s=String(s||'').slice(0,n);return /^[=+\-@]/.test(s)?"'"+s:s;};
 function ss_(){const id=PropertiesService.getScriptProperties().getProperty('SHEET_ID');if(!id)throw new Error('Run setup() once first');return SpreadsheetApp.openById(id);}
 function read_(name){const sh=ss_().getSheetByName(name),n=sh.getLastRow();return n<2?[]:sh.getRange(2,1,n-1,HEAD[name].length).getValues();}
-function pins_(){const P=PropertiesService.getScriptProperties();return{e:P.getProperty('ENTRY_PIN'),o:P.getProperty('OWNER_PIN')};}
-function auth_(pin,role){
- const p=pins_(),s=String(pin||'');
- if(role==='owner'){if(!p.o||s!==p.o)throw new Error('Owner PIN is not configured or is incorrect');return;}
- if((p.e||p.o)&&s!==p.e&&s!==p.o)throw new Error('Wrong PIN');
-}
-function getInit(role){const p=pins_();return{needPin:role==='owner'?true:!!(p.e||p.o),role};}
+function pins_(){const P=PropertiesService.getScriptProperties();return{o:P.getProperty('OWNER_PIN'),u1:P.getProperty('ENTRY_USER1_PIN'),u2:P.getProperty('ENTRY_USER2_PIN'),e:P.getProperty('ENTRY_PIN')};}
+function session_(pin){const p=pins_(),s=String(pin||'');if(p.o&&s===p.o)return{role:'owner',label:'Owner',businesses:BIZ.slice()};if(p.u1&&s===p.u1)return{role:'user1',label:'Entry User 1',businesses:['KANJUKU']};if(p.u2&&s===p.u2)return{role:'user2',label:'Entry User 2',businesses:['GATHAITI']};if(p.e&&s===p.e)return{role:'staff',label:'Entry Staff (legacy)',businesses:BIZ.slice()};throw new Error('Wrong PIN');}
+function auth_(pin,role){const s=session_(pin);if(role==='owner'&&s.role!=='owner')throw new Error('Owner access only');return s;}
+function role_(pin){return session_(pin).role;}
+function getInit(role){return{needPin:true,role};}
+function getStart(pin){const s=auth_(pin,'entry');return{items:getItems(pin),role:s.role,displayName:s.label,businesses:s.businesses};}
+function logoutInfo(){return{ok:true};}
 function levels_(){const out={};read_('Items').forEach(r=>{if(r[4]===''||r[4]==null||isNaN(parseFloat(r[4])))return;out[String(r[0]).toLowerCase()+'|'+String(r[1])]=parseFloat(r[4]);});return out;}
 function balance_(biz,cat,item){const m=r=>String(r[2])===biz&&r[3]===cat&&String(r[4])===item;return read_('Stock').filter(m).reduce((a,r)=>a+num_(r[5]),0)-read_('Sales').filter(m).reduce((a,r)=>a+num_(r[5]),0);}
 function categories_(){const out=new Map();read_('Categories').forEach(r=>{const v=String(r[0]||'').trim();if(v&&!out.has(v.toLowerCase()))out.set(v.toLowerCase(),v);});read_('Items').forEach(r=>{const v=String(r[0]||'').trim();if(v&&!out.has(v.toLowerCase()))out.set(v.toLowerCase(),v);});return [...out.values()].sort((a,b)=>a.localeCompare(b));}
 function listCategories(pin){auth_(pin,'entry');return categories_();}
 function saveCategory(name,pin){auth_(pin,'entry');const cat=txt_(name,60).trim();if(!cat)throw new Error('Enter a category name');const lock=LockService.getScriptLock();lock.waitLock(20000);try{if(categories_().some(x=>x.toLowerCase()===cat.toLowerCase()))throw new Error('This category already exists');ss_().getSheetByName('Categories').appendRow([cat]);return{created:true,category:cat};}finally{lock.releaseLock();}}
 function getItems(pin){auth_(pin,'entry');const out={};categories_().forEach(c=>out[c]=[]);read_('Items').forEach(r=>{if(r[0]&&r[1])(out[r[0]]=out[r[0]]||[]).push({n:String(r[1]),c:num_(r[2]),p:num_(r[3])});});return out;}
-function listEntries(tab,pin){auth_(pin,'entry');const t=TAB[tab];if(!t)throw new Error('Bad tab');return read_(t.sheet).slice(-60).reverse().map(MAP[tab]);}
+function listEntries(tab,pin){const s=auth_(pin,'entry'),t=TAB[tab];if(!t)throw new Error('Bad tab');return read_(t.sheet).filter(r=>s.role==='owner'||s.businesses.indexOf(String(r[2]).toUpperCase())>=0).slice(-60).reverse().map(MAP[tab]);}
 function saveEntry(tab,r,pin){
  auth_(pin,'entry');const t=TAB[tab];if(!t)throw new Error('Bad tab');
  const lock=LockService.getScriptLock();lock.waitLock(20000);
  try{
   const sh=ss_().getSheetByName(t.sheet),date=String(r.date||''),biz=String(r.biz||'').toUpperCase();
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(Date.parse(date)))throw new Error('Choose a valid date');
-  if(!BIZ.includes(biz))throw new Error('Choose a business');
+  const access=session_(pin);if(!BIZ.includes(biz))throw new Error('Choose a business');if(access.businesses.indexOf(biz)<0)throw new Error('You are not authorized to enter records for '+biz+'.');
   const last=sh.getLastRow(),max=last<2?0:Math.max(...sh.getRange(2,1,last-1,1).getValues().map(x=>parseInt(String(x[0]).split('-')[1],10)||0));
   const id=t.prefix+'-'+String(max+1).padStart(4,'0'),now=new Date();let row,ci=null;
   if(tab==='mpesa'){
@@ -108,7 +108,7 @@ function saveEntry(tab,r,pin){
  }finally{lock.releaseLock();}
 }
 function deleteEntry(tab,id,pin){auth_(pin,'owner');const t=TAB[tab];if(!t)throw new Error('Bad tab');const lock=LockService.getScriptLock();lock.waitLock(20000);try{const sh=ss_().getSheetByName(t.sheet),n=sh.getLastRow();if(n<2)throw new Error('Not found');const ids=sh.getRange(2,1,n-1,1).getValues();for(let i=0;i<ids.length;i++)if(ids[i][0]===id){sh.deleteRow(i+2);return true;}throw new Error('Not found');}finally{lock.releaseLock();}}
-function lastMpesa(biz,date,pin){auth_(pin,'entry');const rows=read_('MPesa').filter(r=>String(r[2])===String(biz).toUpperCase()&&day_(r[1])<String(date)).sort((a,b)=>day_(b[1]).localeCompare(day_(a[1])));return rows.length?{date:day_(rows[0][1]),cfloat:num_(rows[0][9]),ccash:num_(rows[0][10])}:null;}
+function lastMpesa(biz,date,pin){const s=auth_(pin,'entry');if(s.businesses.indexOf(String(biz).toUpperCase())<0)throw new Error('Business access denied');const rows=read_('MPesa').filter(r=>String(r[2])===String(biz).toUpperCase()&&day_(r[1])<String(date)).sort((a,b)=>day_(b[1]).localeCompare(day_(a[1])));return rows.length?{date:day_(rows[0][1]),cfloat:num_(rows[0][9]),ccash:num_(rows[0][10])}:null;}
 function authItems_(pin){const p=pins_();if(p.o){if(String(pin||'')!==p.o)throw new Error('Wrong owner PIN');}else auth_(pin,'entry');}
 function listItems(pin){authItems_(pin);return read_('Items').filter(r=>r[0]&&r[1]).map(r=>({cat:String(r[0]),item:String(r[1]),cost:num_(r[2]),price:num_(r[3]),level:r[4]===''||r[4]==null?null:num_(r[4])}));}
 function saveItem(it,pin){authItems_(pin);const lock=LockService.getScriptLock();lock.waitLock(20000);try{const cat=String(it.cat||''),name=txt_(it.item,100).trim();if(!categories_().some(x=>x.toLowerCase()===cat.toLowerCase())||!name)throw new Error('Choose a valid category and enter an item name');const cost=num_(it.cost),price=num_(it.price),lv=it.level===''||it.level==null?'':num_(it.level);if(cost<0||price<0||(lv!==''&&lv<0))throw new Error('Values cannot be negative');const sh=ss_().getSheetByName('Items'),n=sh.getLastRow(),rows=n<2?[]:sh.getRange(2,1,n-1,5).getValues();let row=-1;for(let i=0;i<rows.length;i++)if(String(rows[i][0])===cat&&String(rows[i][1]).trim().toLowerCase()===name.toLowerCase()){row=i+2;break;}if(it.mode==='edit'){if(row<0)throw new Error('Item not found');sh.getRange(row,3,1,3).setValues([[cost,price,lv]]);return{created:false};}if(row>0)throw new Error('Item already exists');sh.appendRow([cat,name,cost,price,lv]);return{created:true};}finally{lock.releaseLock();}}
@@ -125,3 +125,6 @@ function getData(pin){
  const lv=levels_(),rows=Object.values(stock).map(r=>Object.assign(r,{balance:r.received-r.sold,level:lv[r.cat+'|'+r.item]??null})).sort((a,b)=>(a.business+a.cat+a.item).localeCompare(b.business+b.cat+b.item));
  return{recs:Object.values(recs),stock:rows,mpesa,updated:new Date().toISOString(),items:listItems(pin)};
 }
+
+// Run once after editing the four values below. Use different PINs for each login.
+function configureUserPins(){const P=PropertiesService.getScriptProperties();P.setProperties({OWNER_PIN:'SET_OWNER_PIN',ENTRY_USER1_PIN:'SET_KANJUKU_USER_PIN',ENTRY_USER2_PIN:'SET_GATHAITI_USER_PIN'});}
