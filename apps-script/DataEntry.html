@@ -50,7 +50,7 @@ td.n,th.n{text-align:right}
 </head>
 <body>
 <div class="wrap">
-  <h1>Data entry</h1>
+  <h1>Data entry</h1><p class="sub" id="loginstatus">Not logged in</p><div class="actions" style="margin:0 0 14px"><button class="btn ghost" type="button" id="logout">Log out</button></div>
   <p class="sub">Gathaiti & Kanjuku: record sales, stock received and expenses. <a id="dash" href="#" target="_top" style="color:var(--mint)">Open dashboard</a></p>
 
   <div class="tabs" role="tablist" id="tabs">
@@ -123,7 +123,7 @@ td.n,th.n{text-align:right}
 
 <div class="lk hide" id="lk"><form id="lkf"><h2>Enter PIN</h2><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"><div id="lkm" class="err" style="margin-top:6px"></div><button class="btn" style="margin-top:12px;width:100%">Unlock</button><button type="button" class="btn ghost hide" id="lkc" style="margin-top:8px;width:100%">Cancel</button></form></div>
 <script>
-var ITEMS={},PIN='',GOOD='',ROLE='staff',tab='sales',ROWS=[],editing=null,editingEntry=null;
+var ITEMS={},PIN='',GOOD='',ROLE='staff',DISPLAY_NAME='',ALLOWED_BIZ=['GATHAITI','KANJUKU'],tab='sales',ROWS=[],editing=null,editingEntry=null;
 var COLS={
   sales:[['id','ID'],['date','Date'],['biz','Business'],['cat','Category'],['item','Item'],['qty','Qty','n'],['total','Total','n'],['profit','Profit','n']],
   stock:[['id','ID'],['date','Date'],['biz','Business'],['item','Item'],['qty','Qty','n'],['tcost','Total cost','n'],['supplier','Supplier']],
@@ -136,6 +136,7 @@ function $(id){return document.getElementById(id)}
 function num(id){return parseFloat($(id).value)||0}
 function fmt(v){return Number(v).toLocaleString('en-KE')}
 function biz(){return document.querySelector('input[name=biz]:checked').value}
+function applyBusinessAccess(){document.querySelectorAll('input[name=biz]').forEach(function(e){var allowed=ALLOWED_BIZ.indexOf(e.value)>=0;e.disabled=!allowed;e.parentElement.style.display=allowed?'flex':'none';if(allowed)e.checked=true;});$('loginstatus').textContent='Logged in as: '+DISPLAY_NAME+' · '+(ROLE==='owner'?'Both businesses':ALLOWED_BIZ[0]);}
 function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function msg(t,ok){$('msg').textContent=t;$('msg').className=ok?'ok':'err'}
 function warn(t){$('msg').textContent=t;$('msg').className='warn'}
@@ -248,7 +249,7 @@ function save(){
   call('saveEntry',[tab,r,PIN],function(res){busy(false);if(res.alert)warn('Saved '+res.id+'. '+res.alert);else msg('Saved '+res.id,true);resetFields();load()});
 }
 function start(){
-  call('getStart',[PIN],function(s){ITEMS=s.items;ROLE=s.role;GOOD=PIN;$('lk').classList.add('hide');showTab(tab)});
+  call('getStart',[PIN],function(s){ITEMS=s.items;ROLE=s.role;DISPLAY_NAME=s.displayName||s.role;ALLOWED_BIZ=s.businesses||['GATHAITI','KANJUKU'];GOOD=PIN;applyBusinessAccess();$('lk').classList.add('hide');showTab(tab)});
 }
 $('tabs').addEventListener('click',function(e){if(e.target.dataset.t)showTab(e.target.dataset.t)});
 $('cat').addEventListener('change',fillItems);
@@ -325,6 +326,7 @@ function editEntry(id){
   });
 }
 $('lkc').addEventListener('click',function(){PIN=GOOD;$('lk').classList.add('hide');showTab('sales')});
+$('logout').addEventListener('click',function(){PIN='';GOOD='';ROLE='staff';DISPLAY_NAME='';$('loginstatus').textContent='Not logged in';$('lk').classList.remove('hide');$('pin').value='';$('pin').focus();});
 $('lkf').addEventListener('submit',function(e){e.preventDefault();PIN=$('pin').value;start()});
 $('date').value=today();
 google.script.run.withSuccessHandler(function(i){
