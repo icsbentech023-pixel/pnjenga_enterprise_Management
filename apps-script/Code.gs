@@ -1,4 +1,4 @@
-// PNJENGA ENTERPRISE — Google Apps Script + Google Sheets backend
+// CAPTAIN ENTERPRISE — Google Apps Script + Google Sheets backend
 // Businesses: GATHAITI and KANJUKU. Configure PINs with setPins() before deployment.
 const BIZ=['GATHAITI','KANJUKU'];
 const HEAD={
@@ -26,13 +26,13 @@ const MAP={
 function doGet(e){
  const dash=e&&e.parameter&&e.parameter.page==='dashboard';
  return HtmlService.createHtmlOutputFromFile(dash?'Index':'DataEntry')
-  .setTitle(dash?'PNJENGA ENTERPRISE — Dashboard':'PNJENGA ENTERPRISE — Data Entry')
+  .setTitle(dash?'CAPTAIN ENTERPRISE — Dashboard':'CAPTAIN ENTERPRISE — Data Entry')
   .addMetaTag('viewport','width=device-width, initial-scale=1');
 }
 function setup(){
  const P=PropertiesService.getScriptProperties();
  let ss=P.getProperty('SHEET_ID')?SpreadsheetApp.openById(P.getProperty('SHEET_ID')):null;
- if(!ss){ss=SpreadsheetApp.create('PNJENGA ENTERPRISE — Gathaiti & Kanjuku');P.setProperty('SHEET_ID',ss.getId());}
+ if(!ss){ss=SpreadsheetApp.create('CAPTAIN ENTERPRISE — Gathaiti & Kanjuku');P.setProperty('SHEET_ID',ss.getId());}
  let createdItems=false;
  Object.keys(HEAD).forEach(n=>{
   let sh=ss.getSheetByName(n);
