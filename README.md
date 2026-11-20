@@ -1,4 +1,4 @@
-# Pnjenga Enterprise Management — Gathaiti & Kanjuku
+# Captain Enterprise Management — Gathaiti & Kanjuku
 
 This repository now includes a Google Apps Script + Google Sheets implementation. Google Sheets is the shared database; Apps Script runs the web application and enforces server-side PIN checks. The previous GitHub Pages/localStorage prototype is retained on the main branch and is not the production backend.
 
@@ -13,7 +13,7 @@ This repository now includes a Google Apps Script + Google Sheets implementation
 2. Copy `apps-script/Code.gs` into the script's `Code.gs` file.
 3. Create two HTML files named exactly `Index` and `DataEntry`; paste the matching repository HTML files (omit the .html suffix in the Apps Script editor's file name).
 4. In Project Settings, set the script time zone to `Africa/Nairobi`.
-5. For the existing Pnjenga workbook, use the spreadsheet ID supplied by the owner in `EXISTING_SHEET_ID` in `Code.gs`. Run `connectExistingSheet()` and authorize access. It stores the existing ID in Script Properties and returns the workbook's tab names, row counts and header rows for review.
+5. For the existing Captain workbook, use the spreadsheet ID supplied by the owner in `EXISTING_SHEET_ID` in `Code.gs`. Run `connectExistingSheet()` and authorize access. It stores the existing ID in Script Properties and returns the workbook's tab names, row counts and header rows for review.
 6. **Do not run `setup()` until the existing workbook's tabs and column layouts have been reviewed and mapped.** Setup adds missing application tabs and headers; it is not a data-migration tool. Existing tabs are not deleted and starter items are seeded only if setup creates a brand-new `Items` tab.
 7. In Apps Script Project Settings → Script Properties, add:
    - `ENTRY_PIN`: a strong staff PIN
